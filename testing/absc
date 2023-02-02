@@ -1,0 +1,76 @@
+# Week 9: Data Cleaning and Transformation 
+
+#Importing Essential Libraries
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+import warnings
+warnings.filterwarnings('ignore')
+
+#reading csv file
+df= pd.read_csv('forecasting_case_study.csv')
+df.shape
+
+# Exploratory Data Analysis
+
+df.head()
+
+df.describe()
+
+df.dtypes
+
+df.rename(columns={'Price Discount (%)': 'Price Discount'}, inplace=True) #removing % from column name
+
+df.count() #value count of each column
+
+#Unique values in each column
+pd.DataFrame([[i, len(df[i].unique())] for i in df.columns],
+             columns=['Variable','Unique Values']).set_index('Variable')
+
+#Correlation between features
+plt.figure(figsize = (25, 12))
+sns.heatmap(df.corr(), annot = True, linewidths=.25) 
+
+There is not much correlation between features, only 'Covid_Flag' & 'Google_Mobility' have relatively higher correlation.
+
+## Null Values
+
+Null_values = df.isnull().sum()
+Null_values
+
+There is no null values in our dataset.
+
+## Outliers in numerical columns
+
+def plot_hist(df, feature):
+    plt.figure(figsize=(16,4))
+    #Histogram
+    plt.subplot(1,2,1)
+    plt.hist(df[feature], alpha=0.5)
+    #boxplot
+    plt.subplot(1,2,2)
+    sns.boxplot(df[feature])
+    plt.show
+
+plot_hist(df,'Sales')
+
+The sales column is skewed and have high volume of outliers, One way to deal with outliers is to take log. As presented below:
+
+df['Sales'] = [np.log(x) for x in df['Sales']]
+
+figure=df.boxplot(column='Sales')
+
+taking log of the values, removed outliers.
+
+plot_hist(df,'Price Discount')
+
+Variable "price discount" has no outliers.
+
+plot_hist(df,'Google_Mobility')
+#figure=df.boxplot(column='Google_Mobility')   
+
+The histogram and boxplot represents mostly unique values in the data, the only similar value is 0. Hence, we can not call them outliers but unique values.
+
+The remaining columns are categorical, containing binary data. Hence no outliers present.
+
